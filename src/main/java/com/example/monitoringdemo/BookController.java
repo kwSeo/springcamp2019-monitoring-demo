@@ -1,5 +1,6 @@
 package com.example.monitoringdemo;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 public class BookController {
     private final BookRepository repo;
@@ -24,6 +26,7 @@ public class BookController {
     @GetMapping("/books/{id}")
     @Cacheable("book")
     public Book getBook(@PathVariable String id) {
+        log.info("called getBook({})", id);
         return repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
