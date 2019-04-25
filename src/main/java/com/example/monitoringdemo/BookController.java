@@ -1,5 +1,7 @@
 package com.example.monitoringdemo;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,9 +15,12 @@ import java.util.List;
 @RestController
 public class BookController {
     private final BookRepository repo;
+    private final Counter counter;
 
-    public BookController(BookRepository repo) {
+    public BookController(BookRepository repo, MeterRegistry registry) {
         this.repo = repo;
+        this.counter = registry.counter("book.counter", "job", "post");
+//        this.counter = Counter.builder("my.book").tag("job", "post").description("my book description").register(registry);
     }
 
     @GetMapping("/books")
@@ -33,6 +38,7 @@ public class BookController {
     @PostMapping("/books")
     @CacheEvict(value = "book", allEntries = true)
     public Book postBook(@RequestBody Book book) {
+        counter.increment();
         return repo.save(book);
     }
 
